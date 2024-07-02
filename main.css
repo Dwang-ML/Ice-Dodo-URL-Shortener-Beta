@@ -1,0 +1,27 @@
+body {
+    background-color: #292929;
+    color: #c4c4c4;
+}
+a:link {
+color: #ff6e52;
+background-color: transparent;
+text-decoration: none;
+}
+
+a:visited {
+color: #ff6e52;
+background-color: transparent;
+text-decoration: none;
+}
+
+a:hover {
+color: pink;
+background-color: transparent;
+text-decoration: none;
+}
+
+a:active {
+color: pink;
+background-color: transparent;
+text-decoration: none;
+}
