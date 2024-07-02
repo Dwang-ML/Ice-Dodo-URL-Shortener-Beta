@@ -1,35 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF=8">
+    <meta name="author" content="D王 [ML]">
+    <meta name="description" content="Url shortener made by D王 [ML] to shorten ice dodo urls. No collaborators were involved, programmed fully by D王 [ML].">
     <title>Ice Dodo URL Shortener (Beta)</title>
+    <link rel="icon" href="html5.png" type="image/x-icon">
+    <link rel="stylesheet" href="main.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
-    <style>body {
-        background-color: #292929;
-        color: #949494;
-    }
-    a:link {
-  color: pink;
-  background-color: transparent;
-  text-decoration: none;
-    }
-
-    a:visited {
-  color: pink;
-  background-color: transparent;
-  text-decoration: none;
-    }
-
-    a:hover {
-  color: red;
-  background-color: transparent;
-  text-decoration: none;
-    }
-
-    a:active {
-  color: red;
-  background-color: transparent;
-  text-decoration: none;
-    }</style>
 </head>
 <body>
     <h1>Ice Dodo URL Shortener (Beta)</h1>
@@ -39,16 +17,17 @@
     <form id="inputForm">
         <label for="token">Enter token: </label>
         <input type="text" id="token" name="token">
-        <h3></h3>
+        <br>
+        <br>
         <label for="inputValue">Enter URL:</label>
         <input type="text" id="inputValue" name="inputValue">
         <button type="submit">Submit</button>
     </form>
-    <h3></h3>
+    <br>
     <a href="https://www.youtube.com/@ml-wx5mo">Support D王 [ML] now!</a>
-    <h3></h3>
-    <label>---------------------------------------------------------------------------------------------------------------------------------------------------------------</label>
-    <h3></h3>
+    <br>
+    <hr>
+    <br>
     <div id="result"></div>
 
     <script>
