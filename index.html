@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF=8">
+    <meta charset="UTF-8">
     <meta name="author" content="D王 [ML]">
     <meta name="description" content="Url shortener made by D王 [ML] to shorten ice dodo urls. No collaborators were involved, programmed fully by D王 [ML].">
     <title>Ice Dodo URL Shortener (Beta)</title>
@@ -17,17 +17,16 @@
     <form id="inputForm">
         <label for="token">Enter token: </label>
         <input type="text" id="token" name="token">
-        <br>
-        <br>
+        <br><br>
         <label for="inputValue">Enter URL:</label>
         <input type="text" id="inputValue" name="inputValue">
         <button type="submit">Submit</button>
     </form>
     <br>
+    <h3 id="submissionCount"></h3>
+    <br>
     <a href="https://www.youtube.com/@ml-wx5mo">Support D王 [ML] now!</a>
-    <br>
-    <hr>
-    <br>
+    <br><hr><br>
     <div id="result"></div>
 
     <script>
@@ -35,7 +34,100 @@
             let pyodide = await loadPyodide();
             await pyodide.loadPackage("micropip");
 
-            const pythonCode = `
+            let submissionCount = await fetchSubmissionCount(); // Initialize submission count from GitHub
+
+            document.getElementById('submissionCount').innerText = `Total urls shortened: ${submissionCount}`;
+
+            document.getElementById('inputForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                let value = document.getElementById('inputValue').value;
+                let token = document.getElementById('token').value;
+
+                if (token === '02' && value.length > 0) { // Only count valid submissions
+                    submissionCount++;
+                    document.getElementById('submissionCount').innerText = `Total urls shortened: ${submissionCount}`;
+                    
+                    let result = await pyodide.runPythonAsync(`main("${value}", "${token}")`);
+                    document.getElementById('result').innerText = result;
+
+                    let dateTime = new Date().toLocaleString();
+                    let content = `${result}\n\n\n\n\nTime: ${dateTime}\n\n` + ' \n'.repeat(20);
+                    await writeToFile(content, submissionCount); // Update count.txt with new count
+                } else {
+                    document.getElementById('result').innerText = 'Invalid submission. Please provide a valid token and URL.';
+                }
+            });
+
+            async function writeToFile(newContent, count) {
+                const gtk = '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';
+                const repo = 'Dwang-ML/Ice-Dodo-URL-Shortener-Beta';
+                const path = 'count.txt';
+                const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+                const getFileSha = async () => {
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            'Authorization': `token ${gtk}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (!response.ok) {
+                        return null;
+                    }
+                    const data = await response.json();
+                    return data.sha;
+                };
+
+                const fileSha = await getFileSha();
+
+                const updateFileContent = async (newContent) => {
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${gtk}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: 'Update count.txt',
+                            content: btoa(newContent),
+                            sha: fileSha
+                        })
+                    });
+
+                    if (!response.ok) {
+                        console.error('Failed to update file on GitHub');
+                    }
+                };
+
+                let updatedContent = `${count}`;
+                await updateFileContent(updatedContent);
+            }
+
+            async function fetchSubmissionCount() {
+                const gtk = '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';
+                const repo = 'Dwang-ML/Ice-Dodo-URL-Shortener-Beta';
+                const path = 'count.txt';
+                const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${gtk}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to fetch submission count');
+                    return 0; // Default to 0 if file doesn't exist
+                }
+
+                const data = await response.json();
+                const count = parseInt(atob(data.content).trim());
+                return isNaN(count) ? 0 : count;
+            }
+            
+            await pyodide.runPythonAsync(`
 import copy
 
 letters = list('BCDGECFA')
@@ -157,19 +249,9 @@ def main(value, token):
             return "Input value is empty."
     else:
         return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
-            `;
-
-            await pyodide.runPythonAsync(pythonCode);
-
-            document.getElementById('inputForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                let value = document.getElementById('inputValue').value;
-                let token = document.getElementById('token').value;
-
-                let result = await pyodide.runPythonAsync(`main("${value}", "${token}")`);
-                document.getElementById('result').innerText = result;
-            });
+`);
         }
+
         main();
     </script>
 </body>
