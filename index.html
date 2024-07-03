@@ -51,19 +51,23 @@
                     document.getElementById('result').innerText = result;
 
                     let dateTime = new Date().toLocaleString();
-                    let content = `${result}\n\n\n\n\nTime: ${dateTime}\n\n` + ' \n'.repeat(20);
-                    await writeToFile(content, submissionCount); // Update count.txt with new count
+                    let logContent = `${result}\n\nTime: ${dateTime}\n\n` + ' \n'.repeat(20);
+                    let countContent = `${submissionCount}`;
+
+                    await updateFile(countContent, 'count.txt'); // Update count.txt
+                    await appendToFile(logContent, 'log.txt'); // Append to log.txt
                 } else {
                     document.getElementById('result').innerText = 'Invalid submission. Please provide a valid token and URL.';
                 }
             });
 
-            async function writeToFile(newContent, count) {
-                const gtk = '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';
+            async function updateFile(newContent, filename) {
+                const gtk = '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'; // Replace with your GitHub personal access token
                 const repo = 'Dwang-ML/Ice-Dodo-URL-Shortener-Beta';
-                const path = 'count.txt';
+                const path = filename;
                 const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
 
+                // Function to get the current file SHA
                 const getFileSha = async () => {
                     const response = await fetch(apiUrl, {
                         headers: {
@@ -72,6 +76,7 @@
                         }
                     });
                     if (!response.ok) {
+                        console.error(`Failed to get file SHA (${filename}):`, response.status, response.statusText);
                         return null;
                     }
                     const data = await response.json();
@@ -80,32 +85,104 @@
 
                 const fileSha = await getFileSha();
 
-                const updateFileContent = async (newContent) => {
+                if (fileSha) {
+                    // Function to update file content
+                    const updateFileContent = async (newContent, fileSha) => {
+                        const response = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${gtk}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: `Update ${filename}`,
+                                content: btoa(newContent), // Encode content to base64
+                                sha: fileSha
+                            })
+                        });
+
+                        if (!response.ok) {
+                            console.error(`Failed to update ${filename} on GitHub:`, response.status, response.statusText);
+                        }
+                    };
+
+                    await updateFileContent(newContent, fileSha);
+                } else {
+                    console.error(`Unable to retrieve SHA for ${filename}`);
+                }
+            }
+
+            async function appendToFile(newContent, filename) {
+                const gtk = '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'; // Replace with your GitHub personal access token
+                const repo = 'Dwang-ML/Ice-Dodo-URL-Shortener-Beta';
+                const path = filename;
+                const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+                // Function to get the current file SHA
+                const getFileSha = async () => {
                     const response = await fetch(apiUrl, {
-                        method: 'PUT',
                         headers: {
                             'Authorization': `token ${gtk}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: 'Update count.txt',
-                            content: btoa(newContent),
-                            sha: fileSha
-                        })
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (!response.ok) {
+                        console.error(`Failed to get file SHA (${filename}):`, response.status, response.statusText);
+                        return null;
+                    }
+                    const data = await response.json();
+                    return data.sha;
+                };
+
+                const fileSha = await getFileSha();
+
+                if (fileSha) {
+                    const response = await fetch(apiUrl, {
+                        headers: {
+                            'Authorization': `token ${gtk}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
                     });
 
                     if (!response.ok) {
-                        console.error('Failed to update file on GitHub');
+                        console.error(`Failed to get file content (${filename}):`, response.status, response.statusText);
+                        return;
                     }
-                };
 
-                let updatedContent = `${count}`;
-                await updateFileContent(updatedContent);
+                    const data = await response.json();
+                    const currentContent = atob(data.content);
+                    const updatedContent = currentContent + '\n' + newContent;
+
+                    // Function to update file content
+                    const updateFileContent = async (updatedContent, fileSha) => {
+                        const response = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${gtk}`,
+                                'Accept': 'application/vnd.github.v3+json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: `Update ${filename}`,
+                                content: btoa(updatedContent), // Encode content to base64
+                                sha: fileSha
+                            })
+                        });
+
+                        if (!response.ok) {
+                            console.error(`Failed to update ${filename} on GitHub:`, response.status, response.statusText);
+                        }
+                    };
+
+                    await updateFileContent(updatedContent, fileSha);
+                } else {
+                    console.error(`Unable to retrieve SHA for ${filename}`);
+                }
             }
 
             async function fetchSubmissionCount() {
-                const gtk = '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';
+                const gtk = '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'; // Replace with your GitHub personal access token
                 const repo = 'Dwang-ML/Ice-Dodo-URL-Shortener-Beta';
                 const path = 'count.txt';
                 const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
@@ -118,7 +195,7 @@
                 });
 
                 if (!response.ok) {
-                    console.error('Failed to fetch submission count');
+                    console.error('Failed to fetch submission count:', response.status, response.statusText);
                     return 0; // Default to 0 if file doesn't exist
                 }
 
@@ -128,128 +205,128 @@
             }
             
             await pyodide.runPythonAsync(`
-import copy
+                import copy
 
-letters = list('BCDGECFA')
-prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
+                letters = list('BCDGECFA')
+                prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
 
-map = {}
+                map = {}
 
-def link2map(link):
-    global map
-    current = []
-    lead = ''
-    info = ''
-    for char in link:
-        if char in letters:
-            map[lead].append(current)
-            current.append(info)
-            info = ''
-            current = []
-            lead = char
-        elif char == '$':
-            current.append(info)
-            info = ''
-        else:
-            info += char
+                def link2map(link):
+                    global map
+                    current = []
+                    lead = ''
+                    info = ''
+                    for char in link:
+                        if char in letters:
+                            map[lead].append(current)
+                            current.append(info)
+                            info = ''
+                            current = []
+                            lead = char
+                        elif char == '$':
+                            current.append(info)
+                            info = ''
+                        else:
+                            info += char
 
-    map[lead].append(current)
-    current.append(info)
+                    map[lead].append(current)
+                    current.append(info)
 
-    del map['']
+                    del map['']
 
-def delete_empty():
-    global map
-    temp = []
-    for key in map.keys():
-        if not map[key]:
-            temp.append(key)
+                def delete_empty():
+                    global map
+                    temp = []
+                    for key in map.keys():
+                        if not map[key]:
+                            temp.append(key)
 
-    for del_ in temp:
-        del map[del_]
+                    for del_ in temp:
+                        del map[del_]
 
-def shorten_link():
-    global map
-    for key in map.keys():
-        for item_n in range(len(map[key])):
-            for element_n in range(len(map[key][item_n])):
-                try:
-                    map[key][item_n][element_n] = str(round(float(map[key][item_n][element_n])))
-                except:
-                    pass
-                if map[key][item_n][element_n] == 'none':
-                    map[key][item_n][element_n] = 'n'
+                def shorten_link():
+                    global map
+                    for key in map.keys():
+                        for item_n in range(len(map[key])):
+                            for element_n in range(len(map[key][item_n])):
+                                try:
+                                    map[key][item_n][element_n] = str(round(float(map[key][item_n][element_n])))
+                                except:
+                                    pass
+                                if map[key][item_n][element_n] == 'none':
+                                    map[key][item_n][element_n] = 'n'
 
-def map2link():
-    global map, prefix, original_len, link
-    inf = {'Block': None, 'Cone': None, 'Sphere': None, 'Cylinder': None, 'Plane': None, 'Monkey': None, 'Finish': None}
+                def map2link():
+                    global map, prefix, original_len, link
+                    inf = {'Block': None, 'Cone': None, 'Sphere': None, 'Cylinder': None, 'Plane': None, 'Monkey': None, 'Finish': None}
 
-    if 'B' in map.keys():
-        inf['Block'] = len(map['B'])
-    else:
-        inf['Block'] = 0
+                    if 'B' in map.keys():
+                        inf['Block'] = len(map['B'])
+                    else:
+                        inf['Block'] = 0
 
-    if 'C' in map.keys():
-        inf['Cone'] = len(map['C'])
-    else:
-        inf['Cone'] = 0
+                    if 'C' in map.keys():
+                        inf['Cone'] = len(map['C'])
+                    else:
+                        inf['Cone'] = 0
 
-    if 'F' in map.keys():
-        inf['Sphere'] = len(map['F'])
-    else:
-        inf['Sphere'] = 0
+                    if 'F' in map.keys():
+                        inf['Sphere'] = len(map['F'])
+                    else:
+                        inf['Sphere'] = 0
 
-    if 'E' in map.keys():
-        inf['Cylinder'] = len(map['E'])
-    else:
-        inf['Cylinder'] = 0
+                    if 'E' in map.keys():
+                        inf['Cylinder'] = len(map['E'])
+                    else:
+                        inf['Cylinder'] = 0
 
-    if 'A' in map.keys():
-        inf['Plane'] = len(map['A'])
-    else:
-        inf['Plane'] = 0
+                    if 'A' in map.keys():
+                        inf['Plane'] = len(map['A'])
+                    else:
+                        inf['Plane'] = 0
 
-    if 'G' in map.keys():
-        inf['Monkey'] = len(map['G'])
-    else:
-        inf['Monkey'] = 0
+                    if 'G' in map.keys():
+                        inf['Monkey'] = len(map['G'])
+                    else:
+                        inf['Monkey'] = 0
 
-    if 'D' in map.keys():
-        inf['Finish'] = len(map['D'])
-    else:
-        inf['Finish'] = 0
+                    if 'D' in map.keys():
+                        inf['Finish'] = len(map['D'])
+                    else:
+                        inf['Finish'] = 0
 
-    link = ''
-    for key in map.keys():
-        for item in map[key]:
-            temp = key + '$'.join(item)
-            link += temp
-    URL = prefix + link
-    new_len = len(URL)
-    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: {URL}'
+                    link = ''
+                    for key in map.keys():
+                        for item in map[key]:
+                            temp = key + '$'.join(item)
+                            link += temp
+                    URL = prefix + link
+                    new_len = len(URL)
+                    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: {URL}'
 
-def shorten(link):
-    global original_len, map
-    map = {'': [], 'B': [], 'F': [], 'C': [], 'G': [], 'E': [], 'D': [], 'A': []}
-    original_len = len(link)
-    link = link[56:]
-    link2map(link)
-    delete_empty()
-    old_map = copy.deepcopy(map)
-    shorten_link()
-    resultt = map2link()
-    return resultt
+                def shorten(link):
+                    global original_len, map
+                    map = {'': [], 'B': [], 'F': [], 'C': [], 'G': [], 'E': [], 'D': [], 'A': []}
+                    original_len = len(link)
+                    link = link[56:]
+                    link2map(link)
+                    delete_empty()
+                    old_map = copy.deepcopy(map)
+                    shorten_link()
+                    resultt = map2link()
+                    return resultt
 
-def main(value, token):
-    if str(token).strip() == '02':
-        if len(str(value)) != 0:
-            result = shorten(value)
-            return result
-        else:
-            return "Input value is empty."
-    else:
-        return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
-`);
+                def main(value, token):
+                    if str(token).strip() == '02':
+                        if len(str(value)) != 0:
+                            result = shorten(value)
+                            return result
+                        else:
+                            return "Input value is empty."
+                    else:
+                        return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
+            `);
         }
 
         main();
