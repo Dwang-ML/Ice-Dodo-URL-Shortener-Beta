@@ -19,7 +19,6 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Update file content
-      id: update_file
       run: |
         echo "${{ github.event.inputs.newContent }}" > ${{ github.event.inputs.filePath }}
         git config --global user.name 'github-actions[bot]'
@@ -27,6 +26,3 @@ jobs:
         git add ${{ github.event.inputs.filePath }}
         git commit -m "Update ${{ github.event.inputs.filePath }}"
         git push
-
-    - name: Output result
-      run: echo "File updated successfully"
