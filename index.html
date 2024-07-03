@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF=8">
     <meta name="author" content="D王 [ML]">
     <meta name="description" content="Url shortener made by D王 [ML] to shorten ice dodo urls. No collaborators were involved, programmed fully by D王 [ML].">
     <title>Ice Dodo URL Shortener (Beta)</title>
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="main.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
 </head>
-<body> 
+<body>
     <h1>Ice Dodo URL Shortener (Beta)</h1>
     <h3 style="color: #878787">All credits to D王 [ML] for the code for the shortener, no collaborators were involved.<br>
         Version: Beta 1.0<br>
@@ -17,211 +17,134 @@
     <form id="inputForm">
         <label for="token">Enter token: </label>
         <input type="text" id="token" name="token">
-        <br><br>
+        <br>
+        <br>
         <label for="inputValue">Enter URL:</label>
         <input type="text" id="inputValue" name="inputValue">
         <button type="submit">Submit</button>
     </form>
     <br>
-    <h3 id="submissionCount"></h3>
-    <br>
     <a href="https://www.youtube.com/@ml-wx5mo">Support D王 [ML] now!</a>
-    <br><hr><br>
+    <br>
+    <hr>
+    <br>
     <div id="result"></div>
-
     <script>
         async function main() {
             let pyodide = await loadPyodide();
             await pyodide.loadPackage("micropip");
-
-            let submissionCount = await fetchSubmissionCount(); // Initialize submission count from GitHub
-
-            document.getElementById('submissionCount').innerText = `Total urls shortened: ${submissionCount}`;
-
+            const pythonCode = `
+import copy
+letters = list('BCDGECFA')
+prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
+map = {}
+def link2map(link):
+    global map
+    current = []
+    lead = ''
+    info = ''
+    for char in link:
+        if char in letters:
+            map[lead].append(current)
+            current.append(info)
+            info = ''
+            current = []
+            lead = char
+        elif char == '$':
+            current.append(info)
+            info = ''
+        else:
+            info += char
+    map[lead].append(current)
+    current.append(info)
+    del map['']
+def delete_empty():
+    global map
+    temp = []
+    for key in map.keys():
+        if not map[key]:
+            temp.append(key)
+    for del_ in temp:
+        del map[del_]
+def shorten_link():
+    global map
+    for key in map.keys():
+        for item_n in range(len(map[key])):
+            for element_n in range(len(map[key][item_n])):
+                try:
+                    map[key][item_n][element_n] = str(round(float(map[key][item_n][element_n])))
+                except:
+                    pass
+                if map[key][item_n][element_n] == 'none':
+                    map[key][item_n][element_n] = 'n'
+def map2link():
+    global map, prefix, original_len, link
+    inf = {'Block': None, 'Cone': None, 'Sphere': None, 'Cylinder': None, 'Plane': None, 'Monkey': None, 'Finish': None}
+    if 'B' in map.keys():
+        inf['Block'] = len(map['B'])
+    else:
+        inf['Block'] = 0
+    if 'C' in map.keys():
+        inf['Cone'] = len(map['C'])
+    else:
+        inf['Cone'] = 0
+    if 'F' in map.keys():
+        inf['Sphere'] = len(map['F'])
+    else:
+        inf['Sphere'] = 0
+    if 'E' in map.keys():
+        inf['Cylinder'] = len(map['E'])
+    else:
+        inf['Cylinder'] = 0
+    if 'A' in map.keys():
+        inf['Plane'] = len(map['A'])
+    else:
+        inf['Plane'] = 0
+    if 'G' in map.keys():
+        inf['Monkey'] = len(map['G'])
+    else:
+        inf['Monkey'] = 0
+    if 'D' in map.keys():
+        inf['Finish'] = len(map['D'])
+    else:
+        inf['Finish'] = 0
+    link = ''
+    for key in map.keys():
+        for item in map[key]:
+            temp = key + '$'.join(item)
+            link += temp
+    URL = prefix + link
+    new_len = len(URL)
+    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: {URL}'
+def shorten(link):
+    global original_len, map
+    map = {'': [], 'B': [], 'F': [], 'C': [], 'G': [], 'E': [], 'D': [], 'A': []}
+    original_len = len(link)
+    link = link[56:]
+    link2map(link)
+    delete_empty()
+    old_map = copy.deepcopy(map)
+    shorten_link()
+    return map2link()
+def main(value, token):
+    if str(token).strip() == '02':
+        if len(str(value)) != 0:
+            result = shorten(value)
+            return result
+        else:
+            return "Input value is empty."
+    else:
+        return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
+            `;
+            await pyodide.runPythonAsync(pythonCode);
             document.getElementById('inputForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
                 let value = document.getElementById('inputValue').value;
                 let token = document.getElementById('token').value;
-
-                if (token === '02' && value.length > 0) { // Only count valid submissions
-                    submissionCount++;
-                    document.getElementById('submissionCount').innerText = `Total urls shortened: ${submissionCount}`;
-                    
-                    let result = await pyodide.runPythonAsync(`main("${value}", "${token}")`);
-                    document.getElementById('result').innerText = result;
-
-                    let dateTime = new Date().toLocaleString();
-                    let content = `${result}\n\n\n\n\nTime: ${dateTime}\n\n` + ' \n'.repeat(20);
-                    
-                    // Update count.txt on GitHub
-                    await updateGitHubFile('count.txt', submissionCount.toString());
-
-                    // Update log.txt on GitHub
-                    await updateGitHubFile('log.txt', content);
-                } else {
-                    document.getElementById('result').innerText = 'Invalid submission. Please provide a valid token and URL.';
-                }
+                let result = await pyodide.runPythonAsync(`main("${value}", "${token}")`);
+                document.getElementById('result').innerText = result;
             });
-
-            async function updateGitHubFile(filePath, newContent) {
-                const githubToken = 'your_github_token_here'; // Replace with your GitHub personal access token
-                const repo = 'your_username/your_repository';
-                const workflow_id = 'update_file.yml'; // Update with your workflow file name
-
-                const response = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow_id}/dispatches`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${githubToken}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        ref: 'main', // or your default branch
-                        inputs: {
-                            filePath: filePath,
-                            newContent: newContent
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    console.error('Failed to trigger GitHub Action:', response.status, response.statusText);
-                } else {
-                    console.log('GitHub Action triggered successfully');
-                }
-            }
-
-            async function fetchSubmissionCount() {
-                // Implement your logic to fetch submission count from GitHub if needed
-                // This function can be modified based on your actual implementation
-                return 0; // Default to 0 for simplicity
-            }
-            
-            await pyodide.runPythonAsync(`
-                import copy
-
-                letters = list('BCDGECFA')
-                prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
-
-                map = {}
-
-                def link2map(link):
-                    global map
-                    current = []
-                    lead = ''
-                    info = ''
-                    for char in link:
-                        if char in letters:
-                            map[lead].append(current)
-                            current.append(info)
-                            info = ''
-                            current = []
-                            lead = char
-                        elif char == '$':
-                            current.append(info)
-                            info = ''
-                        else:
-                            info += char
-
-                    map[lead].append(current)
-                    current.append(info)
-
-                    del map['']
-
-                def delete_empty():
-                    global map
-                    temp = []
-                    for key in map.keys():
-                        if not map[key]:
-                            temp.append(key)
-
-                    for del_ in temp:
-                        del map[del_]
-
-                def shorten_link():
-                    global map
-                    for key in map.keys():
-                        for item_n in range(len(map[key])):
-                            for element_n in range(len(map[key][item_n])):
-                                try:
-                                    map[key][item_n][element_n] = str(round(float(map[key][item_n][element_n])))
-                                except:
-                                    pass
-                                if map[key][item_n][element_n] == 'none':
-                                    map[key][item_n][element_n] = 'n'
-
-                def map2link():
-                    global map, prefix, original_len, link
-                    inf = {'Block': None, 'Cone': None, 'Sphere': None, 'Cylinder': None, 'Plane': None, 'Monkey': None, 'Finish': None}
-
-                    if 'B' in map.keys():
-                        inf['Block'] = len(map['B'])
-                    else:
-                        inf['Block'] = 0
-
-                    if 'C' in map.keys():
-                        inf['Cone'] = len(map['C'])
-                    else:
-                        inf['Cone'] = 0
-
-                    if 'F' in map.keys():
-                        inf['Sphere'] = len(map['F'])
-                    else:
-                        inf['Sphere'] = 0
-
-                    if 'E' in map.keys():
-                        inf['Cylinder'] = len(map['E'])
-                    else:
-                        inf['Cylinder'] = 0
-
-                    if 'A' in map.keys():
-                        inf['Plane'] = len(map['A'])
-                    else:
-                        inf['Plane'] = 0
-
-                    if 'G' in map.keys():
-                        inf['Monkey'] = len(map['G'])
-                    else:
-                        inf['Monkey'] = 0
-
-                    if 'D' in map.keys():
-                        inf['Finish'] = len(map['D'])
-                    else:
-                        inf['Finish'] = 0
-
-                    link = ''
-                    for key in map.keys():
-                        for item in map[key]:
-                            temp = key + '$'.join(item)
-                            link += temp
-                    URL = prefix + link
-                    new_len = len(URL)
-                    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: {URL}'
-
-                def shorten(link):
-                    global original_len, map
-                    map = {'': [], 'B': [], 'F': [], 'C': [], 'G': [], 'E': [], 'D': [], 'A': []}
-                    original_len = len(link)
-                    link = link[56:]
-                    link2map(link)
-                    delete_empty()
-                    old_map = copy.deepcopy(map)
-                    shorten_link()
-                    resultt = map2link()
-                    return resultt
-
-                def main(value, token):
-                    if str(token).strip() == '02':
-                        if len(str(value)) != 0:
-                            result = shorten(value)
-                            return result
-                        else:
-                            return "Input value is empty."
-                    else:
-                        return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
-            `);
         }
-
         main();
     </script>
 </body>
