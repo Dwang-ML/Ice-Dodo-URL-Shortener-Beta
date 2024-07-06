@@ -11,7 +11,7 @@
 </head>
 <body>
     <h1>Ice Dodo URL Shortener (Beta)</h1>
-    <h3 style="color: #878787">All credits to D王 [ML] for the code for the shortener, no collaborators were involved.<br>
+    <h3 style="color: #9f9e9e">All credits to D王 [ML] for the code for the shortener, no collaborators were involved.<br>
         Version: Beta 1.2<br>
         Status: Public</h3>
     <form id="inputForm">
@@ -76,6 +76,10 @@ def shorten_link():
                     pass
                 if map[key][item_n][element_n] == 'none':
                     map[key][item_n][element_n] = 'n'
+    new_map = {}
+    for key, value in map.items():
+        new_map[key] = list(set(tuple(sublist) for sublist in value))
+    map = new_map
 def map2link():
     global map, prefix, original_len, link
     inf = {'Block': None, 'Cone': None, 'Sphere': None, 'Cylinder': None, 'Plane': None, 'Monkey': None, 'Finish': None}
