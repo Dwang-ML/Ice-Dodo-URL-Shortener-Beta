@@ -5,3 +5,7 @@ Created this project. Beta version of url shortener for ice dodo. This contains 
 
 ## Version: Beta 1.1 (July 5th, 2024 8:44PM MDT)
 Created this version log and added a link on the website (Right above "Support D王 [ML] now!") so users can view logs.
+
+
+## Version: Beta 1.2 (July 5th, 2024 8:55PM MDT)
+Removed the token feature so everyone can use it. It used to have a token slot where user enters a token, they can only use if it is correct. Now it is removed.
