@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF=8">
+    <meta charset="UTF-8">
     <meta name="author" content="D王 [ML]">
     <meta name="description" content="Url shortener made by D王 [ML] to shorten ice dodo urls. No collaborators were involved, programmed fully by D王 [ML].">
     <title>Ice Dodo URL Shortener (Beta)</title>
@@ -12,13 +12,9 @@
 <body>
     <h1>Ice Dodo URL Shortener (Beta)</h1>
     <h3 style="color: #878787">All credits to D王 [ML] for the code for the shortener, no collaborators were involved.<br>
-        Version: Beta 1.1<br>
+        Version: Beta 1.2<br>
         Status: Public</h3>
     <form id="inputForm">
-        <label for="token">Enter token: </label>
-        <input type="text" id="token" name="token">
-        <br>
-        <br>
         <label for="inputValue">Enter URL:</label>
         <input type="text" id="inputValue" name="inputValue">
         <button type="submit">Submit</button>
@@ -129,22 +125,18 @@ def shorten(link):
     old_map = copy.deepcopy(map)
     shorten_link()
     return map2link()
-def main(value, token):
-    if str(token).strip() == '02':
-        if len(str(value)) != 0:
-            result = shorten(value)
-            return result
-        else:
-            return "Input value is empty."
+def main(value):
+    if len(str(value)) != 0:
+        result = shorten(value)
+        return result
     else:
-        return 'Invalid token. Message xxxxx.ml.xxxxx on discord for token.'
+        return "Input value is empty."
             `;
             await pyodide.runPythonAsync(pythonCode);
             document.getElementById('inputForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
                 let value = document.getElementById('inputValue').value;
-                let token = document.getElementById('token').value;
-                let result = await pyodide.runPythonAsync(`main("${value}", "${token}")`);
+                let result = await pyodide.runPythonAsync(`main("${value}")`);
                 document.getElementById('result').innerText = result;
             });
         }
