@@ -14,4 +14,4 @@ Removed the token feature so everyone can use it. It used to have a token slot w
 Released into onionfist server so everyone can use. Extra thanks to MooshMM who announced in small announce and Killugon who pinned the message.
 
 ## Version: Beta 1.3 (July 6th, 2024 9:47AM MDT)
-Made a remove duplicating block feature. When I make maps, I use Shift+D to duplicate, but then a lot of times, I forget if I have duplicated. This feature ensures that those 50+ characters from your duplicated blocks aren't wasted.
+Made a remove duplicating block feature. When I make maps, I use Shift+D to duplicate, but then a lot of times, I forget if I have duplicated. This feature ensures that those 50+ characters for each duplicated blocks aren't wasted.
