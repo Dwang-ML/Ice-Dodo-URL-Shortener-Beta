@@ -6,7 +6,6 @@ Created this project. Beta version of url shortener for ice dodo. This contains 
 ## Version: Beta 1.1 (July 5th, 2024 8:44PM MDT)
 Created this version log and added a link on the website (Right above "Support D王 [ML] now!") so users can view logs.
 
-
 ## Version: Beta 1.2 (July 5th, 2024 8:55PM MDT)
 Removed the token feature so everyone can use it. It used to have a token slot where user enters a token, they can only use if it is correct. Now it is removed. Beta token was "02".
 
@@ -15,3 +14,6 @@ Released into onionfist server so everyone can use. Extra thanks to MooshMM who 
 
 ## Version: Beta 1.3 (July 6th, 2024 9:47AM MDT)
 Made a remove duplicating block feature. When I make maps, I use Shift+D to duplicate, but then a lot of times, I forget if I have duplicated. This feature ensures that those 50+ characters for each duplicated blocks aren't wasted.
+
+## Version: Beta 1.4 (July 7th, 2024 2:14PM MDT)
+Made format changes, added a copy button so you can copy to clipboard right away. The link is now compressed when shown, thus easy to see. Triple click can select the entire link.
