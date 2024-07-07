@@ -8,11 +8,39 @@
     <link rel="icon" href="html5.png" type="image/x-icon">
     <link rel="stylesheet" href="main.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+    <style>
+        #result {
+            white-space: pre-wrap; /* Preserves whitespace and wraps long lines */
+            word-wrap: break-word; /* Allows long words to be broken and wrapped */
+            word-break: break-all; /* Forces the line to break at a certain width */
+            margin-top: 20px;
+            padding: 10px;
+            overflow-x: auto; /* Allows horizontal scrolling if necessary */
+        }
+        #copyArea {
+            display: none; /* Initially hide the input box */
+            margin-top: 10px;
+            padding: 10px;
+            width: 99%; /* Make the width of the input box the same as the width of the screen */
+            height: 40px;
+            box-sizing: border-box; /* Include padding in the element's total width and height */
+        }
+        #copyButton {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            display: none; /* Initially hide the button */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px; /* Rounded edges */
+        }
+    </style>
 </head>
 <body>
     <h1>Ice Dodo URL Shortener (Beta)</h1>
     <h3 style="color: #9f9e9e">All credits to D王 [ML] for the code for the shortener, no collaborators were involved.<br>
-        Version: Beta 1.3<br>
+        Version: Beta 1.4<br>
         Status: Public</h3>
     <form id="inputForm">
         <label for="inputValue">Enter URL:</label>
@@ -26,8 +54,11 @@
     <a href="https://www.youtube.com/@ml-wx5mo">Support D王 [ML] now!</a>
     <br>
     <hr>
-    <br>
     <div id="result"></div>
+    <div id="copyAreaContainer">
+        <input type="text" id="copyArea" readonly>
+        <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
     <script>
         async function main() {
             let pyodide = await loadPyodide();
@@ -118,7 +149,7 @@ def map2link():
             link += temp
     URL = prefix + link
     new_len = len(URL)
-    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: {URL}'
+    return f'Original Length: {original_len}\\nNew Length: {new_len}\\nPercentage Decreased: {round((original_len-new_len)/original_len*100, 2)}%\\nCharacter Decreased: {original_len-new_len}\\n{inf["Block"]} block(s)\\n{inf["Cone"]} cone(s)\\n{inf["Sphere"]} sphere(s)\\n{inf["Cylinder"]} cylinder(s)\\n{inf["Plane"]} plane(s)\\n{inf["Monkey"]} monkey(s)\\n{inf["Finish"]} finish(es)\\nTotal elements/items: {sum(inf.values())}\\nGood luck! Hope your map gets approved!\\n\\nNew URL: ', URL
 def shorten(link):
     global original_len, map
     map = {'': [], 'B': [], 'F': [], 'C': [], 'G': [], 'E': [], 'D': [], 'A': []}
@@ -134,16 +165,33 @@ def main(value):
         result = shorten(value)
         return result
     else:
-        return "Input value is empty."
+        return "Input value is empty.", ""
             `;
             await pyodide.runPythonAsync(pythonCode);
             document.getElementById('inputForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
                 let value = document.getElementById('inputValue').value;
+                console.log('Input value:', value);  // Debug log
                 let result = await pyodide.runPythonAsync(`main("${value}")`);
-                document.getElementById('result').innerText = result;
+                let [textResult, urlResult] = result.toJs();
+                console.log('Text Result:', textResult);  // Debug log
+                console.log('URL Result:', urlResult);  // Debug log
+                document.getElementById('result').innerText = textResult;
+                document.getElementById('copyArea').value = urlResult; // Show result in input box
+                document.getElementById('copyArea').style.display = 'block'; // Show the input box
+                document.getElementById('copyButton').style.display = 'inline-block'; // Show the button
             });
         }
+
+        function copyToClipboard() {
+            let copyText = document.getElementById('copyArea').value;
+            navigator.clipboard.writeText(copyText).then(function() {
+                alert('URL copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
         main();
     </script>
 </body>
