@@ -16,4 +16,4 @@ Released into onionfist server so everyone can use. Extra thanks to MooshMM who 
 Made a remove duplicating block feature. When I make maps, I use Shift+D to duplicate, but then a lot of times, I forget if I have duplicated. This feature ensures that those 50+ characters for each duplicated blocks aren't wasted.
 
 ## Version: Beta 1.4 (July 7th, 2024 2:14PM MDT)
-Made format changes, added a copy button so you can copy to clipboard right away. The link is now compressed when shown, thus easy to see. Triple click can select the entire link.
+Made format changes, added a copy button so you can copy to clipboard right away. The link is now compressed when shown, thus easy to see. Triple click can select the entire link. Also added <meta name="viewport" content="width=device-width, initial-scale=1.0">.
