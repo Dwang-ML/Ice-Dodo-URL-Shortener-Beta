@@ -14,7 +14,7 @@ prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
 map = {}
 
 def link2map(link):
-    global map
+    global map 
     current = []
     lead = ''
     info = ''
