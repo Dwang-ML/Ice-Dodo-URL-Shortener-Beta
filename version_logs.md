@@ -17,3 +17,6 @@ Made a remove duplicating block feature. When I make maps, I use Shift+D to dupl
 
 ## Version: Beta 1.4 (July 7th, 2024 2:14PM MDT)
 Made format changes, added a copy button so you can copy to clipboard right away. The link is now compressed when shown, thus easy to see. Triple click can select the entire link. Also added <meta name="viewport" content="width=device-width, initial-scale=1.0">.
+
+## Version: Beta 1.5 (July 7th, 2024 7:02PM MDT)
+Added more detailed console logs. Also seperated the js script and html into two seperate files, this should hopefully increase the lighthouse rating for performance.
