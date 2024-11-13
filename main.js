@@ -10,7 +10,7 @@ async function main() {
 import copy
 
 letters = list('BCDGECFA')
-prefix = 'https://onionfist.com/icedodo/?mapCodeVersion=v8&mapUrl='
+prefix = 'https://icedodo.onionfist.com/creative/?CompilerVersion=v8&CompilerOutput='
 map = {}
 
 def link2map(link):
